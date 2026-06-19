@@ -2,8 +2,8 @@
 <modification>
 	<name>a2m -Industry Category</name>
 	<code>industry_category_chips</code>
-	<version>1.0.2</version>
-	<author>a2m</author>
+	<version>1.0.4</version>
+	<author>art2make</author>
 	<link>art2make.ru</link>
 
 	<file path="admin/language/ru-ru/catalog/category.php">
@@ -223,6 +223,40 @@ $('input[name=\'industry_category_input\']').autocomplete({
 	</file>
 
 	<file path="catalog/controller/product/category.php">
+		<operation error="skip">
+			<search><![CDATA[			$data['categories'] = array();
+// добавляем ID категорий для которых нужно показывать подкатегории
+			$show_subcategories_for = array(94, 99, 98, 100, 101, 102);
+
+			if (in_array((int)$category_id, $show_subcategories_for, true)) {
+
+            /*start FilterVier*/
+            $results = array();
+            if(!$url_plus || $view_child_cat) {
+            /*end FilterVier*/
+			
+				$results = !isset($uniset['catalog']['subcategory']['disabled']) ? $this->model_catalog_category->getCategories($category_id) : [];
+
+            /*start FilterVier*/
+            }
+			/*end FilterVier*/
+            
+			} else {
+				$results = array();
+			}]]></search>
+			<add position="replace"><![CDATA[			$data['categories'] = array();
+
+            /*start FilterVier*/
+            $results = array();
+            if(!$url_plus || $view_child_cat) {
+            /*end FilterVier*/
+
+				$results = $this->model_catalog_category->getIndustryCategories($category_id);
+
+            /*start FilterVier*/
+            }
+			/*end FilterVier*/]]></add>
+		</operation>
 		<operation error="skip">
 			<search><![CDATA[			$data['categories'] = array();
 // добавляем ID категорий для которых нужно показывать подкатегории
