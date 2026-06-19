@@ -2,20 +2,20 @@
 <modification>
 	<name>a2m -Industry Category</name>
 	<code>industry_category_chips</code>
-	<version>1.0.0</version>
-	<author>art2make</author>
+	<version>1.0.1</version>
+	<author>a2m</author>
 	<link>art2make.ru</link>
 
 	<file path="admin/language/ru-ru/catalog/category.php">
 		<operation>
-			<search><![CDATA[$_['entry_layout'] = 'Изменить макет';]]></search>
+			<search><![CDATA[$_['entry_related_article'] = 'Рекомендуемые статьи:';]]></search>
 			<add position="after"><![CDATA[
 $_['entry_industry_category'] = 'Отраслевые категории:';
 $_['tab_industry'] = 'Отраслевые категории';
 ]]></add>
 		</operation>
 		<operation>
-			<search><![CDATA[$_['help_filter'] = '(Автозаполнение)';]]></search>
+			<search><![CDATA[$_['help_related'] = '(Автозаполнение)';]]></search>
 			<add position="after"><![CDATA[
 $_['help_industry_category'] = 'Выберите категории, которые нужно показать сверху на странице этой категории. Они не становятся подкатегориями.';
 ]]></add>
@@ -24,14 +24,14 @@ $_['help_industry_category'] = 'Выберите категории, котор�
 
 	<file path="admin/language/en-gb/catalog/category.php">
 		<operation>
-			<search><![CDATA[$_['entry_layout'] = 'Layout Override';]]></search>
+			<search><![CDATA[$_['entry_related_article'] = 'Featured Articles:';]]></search>
 			<add position="after"><![CDATA[
 $_['entry_industry_category'] = 'Industry categories:';
 $_['tab_industry'] = 'Industry categories';
 ]]></add>
 		</operation>
 		<operation>
-			<search><![CDATA[$_['help_filter'] = '(Autocomplete)';]]></search>
+			<search><![CDATA[$_['help_related'] = '(Autocomplete)';]]></search>
 			<add position="after"><![CDATA[
 $_['help_industry_category'] = 'Select categories to show at the top of this category page. They do not become child categories.';
 ]]></add>
@@ -40,14 +40,10 @@ $_['help_industry_category'] = 'Select categories to show at the top of this cat
 
 	<file path="admin/model/catalog/category.php">
 		<operation>
-			<search><![CDATA[		$this->cache->delete('category');
+			<search index="0"><![CDATA[$this->cache->delete('category');]]></search>
+			<add position="before"><![CDATA[		$this->setIndustryCategories($category_id, isset($data['industry_category']) ? $data['industry_category'] : array());
 
-		return $category_id;]]></search>
-			<add position="replace"><![CDATA[		$this->setIndustryCategories($category_id, isset($data['industry_category']) ? $data['industry_category'] : array());
-
-		$this->cache->delete('category');
-
-		return $category_id;]]></add>
+]]></add>
 		</operation>
 		<operation>
 			<search><![CDATA[		$this->db->query("DELETE FROM " . DB_PREFIX . "category_to_layout WHERE category_id = '" . (int)$category_id . "'");]]></search>
@@ -228,22 +224,15 @@ $('input[name=\'industry_category_input\']').autocomplete({
 
 	<file path="catalog/controller/product/category.php">
 		<operation>
-			<search><![CDATA[			$data['categories'] = array();
-
-			$results = $this->model_catalog_category->getCategories($category_id);]]></search>
-			<add position="replace"><![CDATA[			$data['categories'] = array();
-			$results = $this->model_catalog_category->getIndustryCategories($category_id);]]></add>
+			<search><![CDATA[			$results = $this->model_catalog_category->getCategories($category_id);]]></search>
+			<add position="replace"><![CDATA[			$results = $this->model_catalog_category->getIndustryCategories($category_id);]]></add>
 		</operation>
 		<operation>
-			<search><![CDATA[				$data['categories'][] = array(
+			<search><![CDATA[					'name' => $result['name'] . ($this->config->get('config_product_count') ? ' (' . $this->model_catalog_product->getTotalProducts($filter_data) . ')' : ''),
+					'href' => $this->url->link('product/category', 'path=' . $this->request->get['path'] . '_' . $result['category_id'] . $url)]]></search>
+			<add position="replace"><![CDATA[					'thumb' => !empty($result['image']) ? $this->model_tool_image->resize($result['image'], $this->config->get('theme_' . $this->config->get('config_theme') . '_image_category_width'), $this->config->get('theme_' . $this->config->get('config_theme') . '_image_category_height')) : '',
 					'name' => $result['name'] . ($this->config->get('config_product_count') ? ' (' . $this->model_catalog_product->getTotalProducts($filter_data) . ')' : ''),
-					'href' => $this->url->link('product/category', 'path=' . $this->request->get['path'] . '_' . $result['category_id'] . $url)
-				);]]></search>
-			<add position="replace"><![CDATA[				$data['categories'][] = array(
-					'thumb' => !empty($result['image']) ? $this->model_tool_image->resize($result['image'], $this->config->get('theme_' . $this->config->get('config_theme') . '_image_category_width'), $this->config->get('theme_' . $this->config->get('config_theme') . '_image_category_height')) : '',
-					'name' => $result['name'] . ($this->config->get('config_product_count') ? ' (' . $this->model_catalog_product->getTotalProducts($filter_data) . ')' : ''),
-					'href' => $this->url->link('product/category', 'path=' . (!empty($result['path']) ? $result['path'] : $result['category_id']) . $url)
-				);]]></add>
+					'href' => $this->url->link('product/category', 'path=' . (!empty($result['path']) ? $result['path'] : $result['category_id']) . $url)]]></add>
 		</operation>
 	</file>
 </modification>
