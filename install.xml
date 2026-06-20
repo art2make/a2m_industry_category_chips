@@ -2,7 +2,7 @@
 <modification>
 	<name>a2m -Industry Category</name>
 	<code>industry_category_chips</code>
-	<version>1.0.5</version>
+	<version>1.0.7</version>
 	<author>art2make</author>
 	<link>art2make.ru</link>
 
@@ -224,59 +224,20 @@ $('input[name=\'industry_category_input\']').autocomplete({
 
 	<file path="catalog/controller/product/category.php">
 		<operation error="skip">
-			<search><![CDATA[			$data['categories'] = array();
-// добавляем ID категорий для которых нужно показывать подкатегории
-			$show_subcategories_for = array(94, 99, 98, 100, 101, 102);
-
-			if (in_array((int)$category_id, $show_subcategories_for, true)) {
-
-            /*start FilterVier*/
-            $results = array();
-            if(!$url_plus || $view_child_cat) {
-            /*end FilterVier*/
-			
-				$results = !isset($uniset['catalog']['subcategory']['disabled']) ? $this->model_catalog_category->getCategories($category_id) : [];
-
-            /*start FilterVier*/
-            }
-			/*end FilterVier*/
-            
-			} else {
-				$results = array();
-			}]]></search>
+			<ignoreif><![CDATA[getIndustryCategories($category_id)]]></ignoreif>
+			<search regex="true"><![CDATA[#(\s*\$data\['categories'\] = array\(\);[\s\S]*?)\n\s*foreach \(\$results as \$result\)#s]]></search>
 			<add position="replace"><![CDATA[			$data['categories'] = array();
-			$results = $this->model_catalog_category->getIndustryCategories($category_id);]]></add>
+			$results = $this->model_catalog_category->getIndustryCategories($category_id);
+
+			if (!$results) {
+				$results = !isset($uniset['catalog']['subcategory']['disabled']) ? $this->model_catalog_category->getCategories($category_id) : array();
+			}
+
+			foreach ($results as $result)]]></add>
 		</operation>
 		<operation error="skip">
-			<search><![CDATA[			$data['categories'] = array();
-// добавляем ID категорий для которых нужно показывать подкатегории
-			$show_subcategories_for = array(94, 99, 98, 100, 101, 102);
-
-			if (in_array((int)$category_id, $show_subcategories_for, true)) {
-				$results = $this->model_catalog_category->getCategories($category_id);
-			} else {
-				$results = array();
-			}]]></search>
-			<add position="replace"><![CDATA[			$data['categories'] = array();
-			$results = $this->model_catalog_category->getIndustryCategories($category_id);]]></add>
-		</operation>
-		<operation error="skip">
-			<search><![CDATA[			$data['categories'] = array();
-
-			$results = $this->model_catalog_category->getCategories($category_id);]]></search>
-			<add position="replace"><![CDATA[			$data['categories'] = array();
-			$results = $this->model_catalog_category->getIndustryCategories($category_id);]]></add>
-		</operation>
-		<operation error="skip">
-			<search><![CDATA[				$data['categories'][] = array(
-					'name' => $result['name'] . ($this->config->get('config_product_count') ? ' (' . $this->model_catalog_product->getTotalProducts($filter_data) . ')' : ''),
-					'href' => $this->url->link('product/category', 'path=' . $this->request->get['path'] . '_' . $result['category_id'] . $url)
-				);]]></search>
-			<add position="replace"><![CDATA[				$data['categories'][] = array(
-					'thumb' => !empty($result['image']) ? $this->model_tool_image->resize($result['image'], $this->config->get('theme_' . $this->config->get('config_theme') . '_image_category_width'), $this->config->get('theme_' . $this->config->get('config_theme') . '_image_category_height')) : '',
-					'name' => $result['name'] . ($this->config->get('config_product_count') ? ' (' . $this->model_catalog_product->getTotalProducts($filter_data) . ')' : ''),
-					'href' => $this->url->link('product/category', 'path=' . (!empty($result['path']) ? $result['path'] : $result['category_id']) . $url)
-				);]]></add>
+			<search regex="true" limit="1"><![CDATA[#('href' => \$this->url->link\('product/category', 'path=' \. \$this->request->get\['path'\] \. '_' \. \$result\['category_id'\] \. \$url\))#]]></search>
+			<add position="replace"><![CDATA['href' => $this->url->link('product/category', 'path=' . (!empty($result['path']) ? $result['path'] : $result['category_id']) . $url)]]></add>
 		</operation>
 	</file>
 </modification>
