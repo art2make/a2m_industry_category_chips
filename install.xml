@@ -2,7 +2,7 @@
 <modification>
 	<name>a2m -Industry Category</name>
 	<code>industry_category_chips</code>
-	<version>1.0.4</version>
+	<version>1.0.5</version>
 	<author>art2make</author>
 	<link>art2make.ru</link>
 
@@ -245,17 +245,7 @@ $('input[name=\'industry_category_input\']').autocomplete({
 				$results = array();
 			}]]></search>
 			<add position="replace"><![CDATA[			$data['categories'] = array();
-
-            /*start FilterVier*/
-            $results = array();
-            if(!$url_plus || $view_child_cat) {
-            /*end FilterVier*/
-
-				$results = $this->model_catalog_category->getIndustryCategories($category_id);
-
-            /*start FilterVier*/
-            }
-			/*end FilterVier*/]]></add>
+			$results = $this->model_catalog_category->getIndustryCategories($category_id);]]></add>
 		</operation>
 		<operation error="skip">
 			<search><![CDATA[			$data['categories'] = array();
